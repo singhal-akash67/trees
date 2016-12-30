@@ -1,7 +1,10 @@
+#include<stdlib.h>
 #ifndef binarytree_h
 #define binarytree_h
+class nodeforlinkedlist;
 class binarytreenode
 {
+
     int data;
     binarytreenode* left;
     binarytreenode* right;
@@ -12,15 +15,28 @@ public:
         left=NULL;
         right=NULL;
     }
-    friend binarytreenode* MakingBinaryTree();
-    friend void PrintingTree(binarytreenode*);
-    friend int TotalNumberOfNodes(binarytreenode*);
+    friend binarytreenode* DeleteAllLeafNodes(binarytreenode*);
+    friend void PrintingAllNodesThatDoNotHaveSibling(binarytreenode*);
+    friend nodeforlinkedlist** CreatingLinkedListForLevels(binarytreenode*);
+    friend bool IsBalanced(binarytreenode*);
+    friend bool IsStructurallyIdentical(binarytreenode*,binarytreenode*);
+    friend int SumOfAllNodes(binarytreenode*);
     friend int HeightOfTree(binarytreenode*);
     friend int Diameter(binarytreenode*);
     friend void MirrorTree(binarytreenode*);
     friend void InorderTraversalRecursively(binarytreenode*);
     friend void PreorderTraversalRecursively(binarytreenode*);
     friend void PostorderTraversalRecursively(binarytreenode*);
+    friend binarytreenode* MakingBinaryTree();
+    friend void PrintingTree(binarytreenode*);
+    friend int TotalNumberOfNodes(binarytreenode*);
+
+
+
+
+
+
+
 };
 class nodeforqueue
 {
@@ -112,9 +128,12 @@ binarytreenode* MakingBinaryTree()
 }
 void PrintingTree(binarytreenode* root)
 {
-    cout<<"root data : "<<root->data<<endl;
     queue a;
+    if(root!=NULL)
+    {
+    cout<<"root data : "<<root->data<<endl;
     a.enqueue(root);
+    }
     while(!a.isempty())
     {
         binarytreenode* temp=a.dequeue();
@@ -189,6 +208,129 @@ void PostorderTraversalRecursively(binarytreenode* root)
     PostorderTraversalRecursively(root->right);
     cout<<root->data<<endl;
 }
+int SumOfAllNodes(binarytreenode* root)
+{
+    if(root==NULL)
+        return 0;
+    else
+        return root->data+SumOfAllNodes(root->left)+SumOfAllNodes(root->right);
+}
+bool IsStructurallyIdentical(binarytreenode* root1,binarytreenode* root2)
+{
+    if(root1==NULL&&root2==NULL)
+        return true;
+    else if(root1!=NULL&&root2!=NULL&&root1->data==root2->data)
+        return true*IsStructurallyIdentical(root1->left,root2->left)*IsStructurallyIdentical(root1->right,root2->right);
+    else
+        return false;
+}
+bool IsBalanced(binarytreenode* root)
+{
+    if(root==NULL)
+        return true;
+    else if(abs(HeightOfTree(root->left)-HeightOfTree(root->right))<=1)
+        return true*IsBalanced(root->left)*IsBalanced(root->right);
+    else
+        return false;
+}
+class nodeforlinkedlist
+{
+    public:
+    binarytreenode* value;
+    nodeforlinkedlist* next;
+    nodeforlinkedlist()
+    {
 
+    }
+    nodeforlinkedlist(binarytreenode* value)
+    {
+        this->value=value;
+        next=NULL;
+    }
+
+};
+nodeforlinkedlist** CreatingLinkedListForLevels(binarytreenode* root)
+{
+    nodeforlinkedlist** array=new nodeforlinkedlist*[HeightOfTree(root)];
+    queue a;
+    a.enqueue(root);
+    int previous=1;
+    int levels=0;
+    while(!a.isempty())
+    {
+        int currentvalue=0;
+        nodeforlinkedlist* head=NULL;
+        nodeforlinkedlist* prev=NULL;
+        while(previous>0)
+        {
+            binarytreenode* temp=a.dequeue();
+
+
+            nodeforlinkedlist* newnode=new nodeforlinkedlist(temp);
+            if(head==NULL)
+            {
+                head=newnode;
+                prev=newnode;
+            }
+            else
+            {
+                prev->next=newnode;
+                prev=newnode;
+            }
+            if(temp->left!=NULL)
+            {
+                a.enqueue(temp->left);
+                currentvalue++;
+            }
+            if(temp->right!=NULL)
+            {
+                a.enqueue(temp->right);
+                currentvalue++;
+            }
+            previous--;
+        }
+
+        array[levels]=head;
+        levels++;
+        previous=currentvalue;
+    }
+    return array;
+
+}
+void PrintingAllNodesThatDoNotHaveSibling(binarytreenode* root)
+{
+    if(root==NULL)
+        return;
+    else if(root->left==NULL&&root->right!=NULL){
+        cout<<root->right->data<<endl;
+        PrintingAllNodesThatDoNotHaveSibling(root->right);
+        }
+    else if(root->left!=NULL&&root->right==NULL){
+        cout<<root->left->data<<endl;
+        PrintingAllNodesThatDoNotHaveSibling(root->left);
+        }
+        else
+        {
+            PrintingAllNodesThatDoNotHaveSibling(root->left);
+            PrintingAllNodesThatDoNotHaveSibling(root->right);
+
+        }
+}
+binarytreenode* DeleteAllLeafNodes(binarytreenode* root)
+{
+    if(root==NULL)
+        return NULL;
+    if(root->left==NULL&&root->right==NULL)
+    {
+        delete root;
+        return NULL;
+    }
+    else
+    {
+        root->left=DeleteAllLeafNodes(root->left);
+        root->right=DeleteAllLeafNodes(root->right);
+    }
+    return root;
+}
 
 #endif // binarytree_h
