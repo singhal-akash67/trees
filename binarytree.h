@@ -200,18 +200,18 @@ void InorderTraversalRecursively(binarytreenode* root){
 }
 void InorderTraversalIteratively(binarytreenode* root){
     stack s;
-    s.push(root);
-    while(!s.isempty()){
-        binarytreenode* temp=s.pop();
-        while(temp->left!=NULL){
-            if(temp->right!=NULL)
-                s.push(temp->right);
-            s.push(temp);
-            temp=temp->left;
+binarytreenode* temp=root;
+
+    while(!s.isempty()||temp!=NULL){
+        while(temp!=NULL){
+                s.push(temp);
+                temp=temp->left;
+
         }
-        cout<<temp->data<<" ";
-        if(!s.isempty())
-        cout<<s.pop()->data<<" ";
+        binarytreenode* k=s.pop();
+        cout<<k->data<<" ";
+        if(k->right!=NULL)
+            temp=k->right;
     }
     cout<<endl;
     return;
@@ -396,4 +396,5 @@ void PrintingLevelsInZigZagManner(binarytreenode* root){
         }
     }
 }
+
 #endif // binarytree_h
