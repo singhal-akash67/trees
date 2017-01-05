@@ -13,11 +13,18 @@ public:
         left=NULL;
         right=NULL;
     }
+    friend int LCA(treenode* root,int data1,int data2);
+    friend treenode* Insertion(treenode*,int);
     friend treenode* Deletion(treenode*,int);
     friend treenode* DeletingWithOneorZeroChild(treenode*,treenode*,int);/*This is the function used by Deletion function*/
     friend void DeletingWithTwoChild(treenode*,int);/*This is the function used by Deletion function*/
+    friend int Height(treenode*);
+    friend void PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(treenode*,int,int,int*);
+    friend void ReplacingEachNodeDataWithSumOfGreaterNodesInTree(treenode*,int);
+    friend int SumofAllNodes(treenode* root);
+    friend void TwoNumbersWhichSumToX(treenode* root,int X);
+    friend int* CreatingSortedArray(treenode*);
     friend treenode* FindMin(treenode*);/*This is the function used by DeletingWithTwoChild function*/
-    friend treenode* Insertion(treenode*,int);
     friend treenode* MakingTree();
     friend void PrintingTree(treenode*);
     friend int SizeOfTree(treenode*);
@@ -283,5 +290,138 @@ void CreatingDuplicateNodesOnLeft(treenode* root)
         return;
 
     }
+}
+class nodeforstack{
+public:
+    treenode* data;
+    nodeforstack* next;
+    nodeforstack(treenode* data){
+        this->data=data;
+        next=NULL;
+    }
+};
+class stack{
+    public:
+  nodeforstack *top;
+  stack(){
+      top=NULL;
+  }
+  void push(treenode* data){
+      nodeforstack* newnode=new nodeforstack(data);
+      if(top==NULL){
+          top=newnode;
+      }
+      else{
+          newnode->next=top;
+          top=newnode;
+      }
+  }
+  treenode* pop(){
+      if(top==NULL)
+        return NULL;
+      treenode* tobereturned=top->data;
+      nodeforstack* temp=top;
+      top=top->next;
+      delete temp;
+      return tobereturned;
+  }
+  bool isempty(){
+      if(top==NULL)
+        return true;
+      else
+        return false;
+  }
+};
+int* CreatingSortedArray(treenode* root){
+    int* array=new int[SizeOfTree(root)];
+ stack s;
+treenode* temp=root;
+int index=0;
+    while(!s.isempty()||temp!=NULL){
+        while(temp!=NULL){
+                s.push(temp);
+                temp=temp->left;
+
+        }
+    treenode* k=s.pop();
+        array[index]=k->data;
+        index++;
+        if(k->right!=NULL)
+            temp=k->right;
+    }
+    cout<<endl;
+    return array;
+}
+void TwoNumbersWhichSumToX(treenode* root,int X){
+    int* array=CreatingSortedArray(root);
+    for(int i=0,j=SizeOfTree(root)-1;i<j;){
+        if(array[i]+array[j]==X){
+            cout<<array[i]<<" "<<array[j]<<endl;
+            return;
+        }
+        else if(array[i]+array[j]<X){
+            i++;
+        }
+        else{
+            j--;
+        }
+    }
+    cout<<"sorry no solution"<<endl;
+    return;
+}
+int LCA(treenode* root,int data1,int data2){
+    if(root==NULL)
+        return -1;
+    else if(data1==root->data||data2==root->data)
+        return root->data;
+    else if((data1>root->data&&data2<root->data)||(data1<root->data&&data2>root->data))
+        return root->data;
+    else if(data1>root->data&&data2>root->data)
+        return LCA(root->right,data1,data2);
+    else
+        return LCA(root->left,data1,data2);
+}
+int SumofAllNodes(treenode* root){
+    if(root==NULL)
+        return 0;
+    else
+        return root->data+SumofAllNodes(root->left)+SumofAllNodes(root->right);
+}
+void ReplacingEachNodeDataWithSumOfGreaterNodesInTree(treenode* root,int rightsubtreedata=0){
+    if(root==NULL)
+        return;
+        int a=root->data;
+        root->data=SumofAllNodes(root->right)+rightsubtreedata;
+    ReplacingEachNodeDataWithSumOfGreaterNodesInTree(root->left,a+root->data);
+    ReplacingEachNodeDataWithSumOfGreaterNodesInTree(root->right,rightsubtreedata);
+    return;
+}
+int Height(treenode *root)
+{
+    if(root==NULL)
+        return 0;
+    else
+        return 1+max(Height(root->left),Height(root->right));
+}
+void  PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(treenode* root,int number,int index=0,int *array=NULL)
+{
+    if(root==NULL)
+    {
+        if(number==0)
+        {
+            for(int i=0;i<=index;i++)
+            {
+                cout<<array[i]<<" ";
+            }
+            cout<<endl;
+        }
+        return;
+    }
+    if(array==NULL)
+        array=new int[Height(root)];
+        array[index]=root->data;
+    PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(root->left,number-root->data,index+1,array);
+    PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(root->right,number-root->data,index+1,array);
+
 }
 #endif // binarysearchtree_h

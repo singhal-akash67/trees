@@ -1,6 +1,8 @@
 #include<stdlib.h>
+#include<climits>
 #ifndef binarytree_h
 #define binarytree_h
+class MaxBst;/*This is class used by MaxBstInBinaryTreeEfficient(binarytreenode*)*/
 class nodeforlinkedlist;
 class binarytreenode{
     int data;
@@ -11,7 +13,11 @@ public:
         this->data=data;
         left=NULL;
         right=NULL;
-    }
+    };
+    friend MaxBst MaxBstInBinaryTreeEfficient(binarytreenode*);
+    friend binarytreenode* MaxBstInBinaryTree(binarytreenode*);
+    friend int IsBst(binarytreenode*);/*This is used by above function*/
+    friend void PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(binarytreenode*,int,int,int*);
     friend void PrintingLevelsInZigZagManner(binarytreenode* );
     friend binarytreenode* DeleteAllLeafNodes(binarytreenode*);
     friend void PrintingAllNodesThatDoNotHaveSibling(binarytreenode*);
@@ -396,5 +402,100 @@ void PrintingLevelsInZigZagManner(binarytreenode* root){
         }
     }
 }
+void  PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(binarytreenode* root,int number,int index=0,int *array=NULL)
+{
+    if(root==NULL)
+        return;
 
+    if(root->left==NULL&&root->right==NULL)
+    {
+        if(number-root->data==0)
+        {
+            array[index]=root->data;
+            for(int i=0;i<=index;i++)
+            {
+                cout<<array[i]<<" ";
+            }
+            cout<<endl;
+        }
+        return;
+    }
+    if(array==NULL)
+        array=new int[HeightOfTree(root)];
+        array[index]=root->data;
+    PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(root->left,number-root->data,index+1,array);
+    PrintRootToLeafPathsWhereSumOfAllNodesinPathIsEqualToGivenNumber(root->right,number-root->data,index+1,array);
+
+}
+int IsBst(binarytreenode* root)
+{
+    if(root==NULL)
+        return 0;
+    else if((root->left==NULL||(root->left!=NULL&&root->data>root->left->data))&&(root->right==NULL||(root->right!=NULL&&root->data<=root->right->data)))
+        return 1+IsBst(root->left)+IsBst(root->right);
+    else
+        return INT_MIN;
+}
+binarytreenode* MaxBstInBinaryTree(binarytreenode* root)
+{
+    if(root==NULL)
+        return NULL;
+    int a=IsBst(root);
+    if(a>0)
+        return root;
+    else
+            return TotalNumberOfNodes(MaxBstInBinaryTree(root->left))>TotalNumberOfNodes(MaxBstInBinaryTree(root->right))? MaxBstInBinaryTree(root->left): MaxBstInBinaryTree(root->right);
+
+
+
+}
+class MaxBst
+{
+public:
+    int size;
+    binarytreenode* temp;
+    MaxBst()
+    {
+        size=-1;
+        temp=NULL;
+    }
+};
+MaxBst MaxBstInBinaryTreeEfficient(binarytreenode* root)
+{
+    if(root==NULL)
+    {
+        MaxBst xyz;
+        return xyz;
+    }
+    MaxBst left=MaxBstInBinaryTreeEfficient(root->left);
+    MaxBst right=MaxBstInBinaryTreeEfficient(root->right);
+    if(left.temp==NULL&&right.temp==NULL)
+    {
+        left.temp=root;
+        left.size=left.size+2;
+        return left;
+    }
+    if(root->left!=left.temp||root->right!=right.temp)
+    {
+        return left.size>right.size ? left:right;
+    }
+    else
+    {
+        if((root->left==NULL||(root->left!=NULL&&root->data>root->left->data))&&(root->right==NULL||(root->right!=NULL&&root->data<=root->right->data)))
+            {
+                MaxBst xyz;
+                if(left.size!=-1)
+                    xyz.size=left.size;
+                if(right.size!=-1)
+                xyz.size=xyz.size+right.size;
+                xyz.size++;
+                xyz.temp=root;
+                return xyz;
+            }
+            else{
+                return left.size>right.size ? left:right;
+            }
+    }
+
+}
 #endif // binarytree_h
